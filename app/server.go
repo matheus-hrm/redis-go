@@ -26,16 +26,18 @@ func (s *Server) Start() {
 	}
 	defer l.Close()
 	s.Listener = l
-	conn, err := s.Listener.Accept()	
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+	for {
+		conn, err := s.Listener.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		go s.HandleConnection(conn)
 	}
-	defer conn.Close()
-	go s.HandleConnection(conn)
 }
 
 func (s *Server) HandleConnection(conn net.Conn) {
+	defer conn.Close()
 	for {
 		buffer := make([]byte, 128)
 		_, err := conn.Read(buffer) // Use the bufio.Reader to read from the connection
