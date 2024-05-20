@@ -41,8 +41,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 	for {
 		buffer := make([]byte, 128)
-		buffer = buffer[:cap(buffer)]
-		n, err := conn.Read(buffer) // Use the bufio.Reader to read from the connection
+		n, err := conn.Read(buffer) 
 		if err != nil {
 			fmt.Println("Error reading from connection: ", err.Error())
 			break
