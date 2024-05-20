@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio" // Import the bufio package
 	"fmt"
 	"net"
 	"os"
@@ -11,6 +12,7 @@ type Server struct {
 	Port     int
 	Listener net.Listener
 }
+
 func main() {
 	fmt.Println("Logs from your program will appear here!")
 
@@ -23,7 +25,7 @@ func main() {
 	server.ReadLoop(conn)
 }
 
-func newServer (addr string, port int) *Server {
+func newServer(addr string, port int) *Server {
 	return &Server{
 		Addr: addr,
 		Port: port,
@@ -49,11 +51,12 @@ func (s *Server) Accept() (net.Conn, error) {
 	return conn, nil
 }
 
-func (s *Server) ReadLoop (conn net.Conn) {
+func (s *Server) ReadLoop(conn net.Conn) {
 	defer conn.Close()
+	reader := bufio.NewReader(conn) // Create a bufio.Reader to read from the connection
 	for {
 		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
+		n, err := reader.Read(buf) // Use the bufio.Reader to read from the connection
 		if err != nil {
 			fmt.Println("Error reading from connection: ", err.Error())
 			return
@@ -62,3 +65,4 @@ func (s *Server) ReadLoop (conn net.Conn) {
 		conn.Write([]byte("+PONG\r\n"))
 	}
 }
+
