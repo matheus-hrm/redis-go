@@ -32,7 +32,7 @@ func (s *Server) Start() {
 		os.Exit(1)
 	}
 	defer conn.Close()
-	s.HandleConnection(conn)
+	go s.HandleConnection(conn)
 }
 
 func (s *Server) HandleConnection(conn net.Conn) {
