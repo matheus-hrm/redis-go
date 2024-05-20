@@ -16,7 +16,7 @@ type Server struct {
 func main() {
 	fmt.Println("Logs from your program will appear here!")
 
-	server := newServer("0.0.0.0", 6379)
+	server := newServer("0.0.0.0:6379")
 	err := server.Listen()
 	if err != nil {
 		os.Exit(1)
@@ -25,15 +25,14 @@ func main() {
 	defer conn.Close()
 }
 
-func newServer(addr string, port int) *Server {
+func newServer(addr string) *Server {
 	return &Server{
 		Addr: addr,
-		Port: port,
 	}
 }
 
 func (s *Server) Listen() error {
-	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Addr, s.Port))
+	l, err := net.Listen("tcp", s.Addr)
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
 	}
