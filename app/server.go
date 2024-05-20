@@ -14,7 +14,7 @@ type Server struct {
 func main() {
 	fmt.Println("Logs from your program will appear here!")
 
-	server := newServer("localhost", 6379)
+	server := newServer("0.0.0.0", 6379)
 	err := server.Listen()
 	if err != nil {
 		os.Exit(1)
