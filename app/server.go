@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio" // Import the bufio package
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -22,7 +22,7 @@ func main() {
 		os.Exit(1)
 	}
 	conn, _ := server.Accept()
-	server.ReadLoop(conn)
+	defer conn.Close()
 }
 
 func newServer(addr string, port int) *Server {
@@ -43,26 +43,34 @@ func (s *Server) Listen() error {
 }
 
 func (s *Server) Accept() (net.Conn, error) {
-	conn, err := s.Listener.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		return nil, err
+	for {
+		conn, err := s.Listener.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			return nil, err
+		}
+		go s.HandleConnection(conn)
 	}
-	return conn, nil
 }
 
-func (s *Server) ReadLoop(conn net.Conn) {
-	defer conn.Close()
-	reader := bufio.NewReader(conn) // Create a bufio.Reader to read from the connection
+func (s *Server) HandleConnection(conn net.Conn) {
+	buffer := make([]byte, 1024)
 	for {
-		buf := make([]byte, 1024)
-		n, err := reader.Read(buf) // Use the bufio.Reader to read from the connection
+		n, err := conn.Read(buffer) // Use the bufio.Reader to read from the connection
+		if n == 0 { return }
 		if err != nil {
+			if err == io.EOF {
+				return
+			}
 			fmt.Println("Error reading from connection: ", err.Error())
+		}
+		buffer = buffer[:n]
+		fmt.Printf("buffer: %s\n", buffer)
+		_, err = conn.Write([]byte("PONG\r\n"))
+		if err != nil {
+			fmt.Println("Error writing to connection: ", err.Error())
 			return
 		}
-		fmt.Println("Received ", string(buf[:n]))
-		conn.Write([]byte("+PONG\r\n"))
 	}
 }
 
