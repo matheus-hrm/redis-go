@@ -16,14 +16,10 @@ func main() {
 	server := *&Server{
 		Addr: "0.0.0.0:6379",
 	}
-	err := server.Start()
-	if err != nil {
-		fmt.Println("Error starting server: ", err.Error())
-		os.Exit(1)
-	}
+	server.Start()
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start() {
 	l, err := net.Listen("tcp", s.Addr)
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
@@ -36,8 +32,7 @@ func (s *Server) Start() error {
 		os.Exit(1)
 	}
 	defer conn.Close()
-	go s.HandleConnection(conn)
-	return nil
+	s.HandleConnection(conn)
 }
 
 func (s *Server) HandleConnection(conn net.Conn) {
@@ -48,10 +43,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 			fmt.Println("Error reading from connection: ", err.Error())
 			os.Exit(1)
 		}
-		_, err = conn.Write([]byte("+PONG\r\n"))
-		if err != nil {
-			fmt.Println("Error writing to connection: ", err.Error())
-		}
+		conn.Write([]byte("+PONG\r\n"))
 	}
 }
 
