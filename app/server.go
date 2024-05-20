@@ -56,7 +56,6 @@ func (s *Server) HandleConnection(conn net.Conn) {
 		}
 		//_, err = conn.Write([]byte("+PONG\r\n"))
 		
-		// write the write function
 		err = WriteCommand(conn, request)
 		if err != nil {
 			fmt.Println("Error writing to connection: ", err.Error())

@@ -61,13 +61,15 @@ func ParseCommand(b []byte) (Request, error) {
 					return Request{}, err
 				}
 				if dataType == BulkString {
-					args = append(args, parseString(&b))
-					if len(args) != subCount {
+					val := parseString(&b)
+					if len(val) != subCount {
 						return Request{}, errors.New("invalid format, incorrect number of arguments")
 					}
 					if cmd == "" {
-						cmd = args[0]
+						cmd = val
+						continue
 					}
+					args = append(args, val)
 				} else {
 					return Request{}, errors.New("invalid command")
 				}
