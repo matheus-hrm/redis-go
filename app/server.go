@@ -43,7 +43,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 		_, err := conn.Read(buffer) // Use the bufio.Reader to read from the connection
 		if err != nil {
 			fmt.Println("Error reading from connection: ", err.Error())
-			os.Exit(1)
+			break
 		}
 		conn.Write([]byte("+PONG\r\n"))
 	}
