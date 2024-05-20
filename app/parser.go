@@ -84,7 +84,7 @@ func GetCommandType(b *[]byte) (dataType RespDataType, count int, err error) {
 	dataType = RespDataType((*b)[0])
 	count = 0
 	if dataType.IsAggregate() {
-		count, err = strconv.Atoi(string((*b)[1:]))
+		count, err = strconv.Atoi(string((*b)[1]))
 	}
 	*b = (*b)[count:]
 
