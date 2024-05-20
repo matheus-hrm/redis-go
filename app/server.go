@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -13,7 +14,7 @@ type Server struct {
 
 func main() {
 	fmt.Println("Logs from your program will appear here!")
-	server := *&Server{
+	server := Server{
 		Addr: "0.0.0.0:6379",
 	}
 	server.Start()
@@ -40,12 +41,46 @@ func (s *Server) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 	for {
 		buffer := make([]byte, 128)
-		_, err := conn.Read(buffer) // Use the bufio.Reader to read from the connection
+		buffer = buffer[:cap(buffer)]
+		n, err := conn.Read(buffer) // Use the bufio.Reader to read from the connection
 		if err != nil {
 			fmt.Println("Error reading from connection: ", err.Error())
 			break
 		}
-		conn.Write([]byte("+PONG\r\n"))
+		buffer = buffer[:n]
+		fmt.Println("Received: ", string(buffer))
+
+		request, err := ParseCommand(buffer)
+		if err != nil {
+			fmt.Println("Error parsing request: ", err.Error())
+			break
+		}
+		//_, err = conn.Write([]byte("+PONG\r\n"))
+		
+		// write the write function
+		err = WriteCommand(conn, request)
+		if err != nil {
+			fmt.Println("Error writing to connection: ", err.Error())
+			break
+		}
 	}
+}
+
+func WriteCommand(conn net.Conn, req Request) (error) {
+	switch req.Command {
+	case ECHO:
+		_, err := io.WriteString(conn, fmt.Sprintf("+%s\r\n", req.Args[0]))
+		if err != nil {
+			fmt.Println("Error responding to ECHO", err.Error())
+			os.Exit(1)
+		}
+	case PING: 
+		_, err := io.WriteString(conn, "+PONG\r\n")
+		if err != nil {
+			fmt.Println("Error responding to PING", err.Error())
+			os.Exit(1)
+		}
+	}
+	return nil
 }
 
