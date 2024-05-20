@@ -6,18 +6,59 @@ import (
 	"os"
 )
 
+type Server struct {
+	Addr     string
+	Port     int
+	Listener net.Listener
+}
 func main() {
 	fmt.Println("Logs from your program will appear here!")
 
-	l, err := net.Listen("tcp", "0.0.0.0:6379")
+	server := newServer("localhost", 6379)
+	err := server.Listen()
 	if err != nil {
-	 	fmt.Println("Failed to bind to port 6379")
-	 	os.Exit(1)
+		os.Exit(1)
 	}
-	conn, err := l.Accept()
+	conn, _ := server.Accept()
+	server.ReadLoop(conn)
+}
+
+func newServer (addr string, port int) *Server {
+	return &Server{
+		Addr: addr,
+		Port: port,
+	}
+}
+
+func (s *Server) Listen() error {
+	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Addr, s.Port))
 	if err != nil {
-	 	fmt.Println("Error accepting connection: ", err.Error())
-	 	os.Exit(1)
+		fmt.Println("Failed to bind to port 6379")
 	}
-	conn.Write([]byte("+PONG\r\n"))
+	defer l.Close()
+	s.Listener = l
+	return nil
+}
+
+func (s *Server) Accept() (net.Conn, error) {
+	conn, err := s.Listener.Accept()
+	if err != nil {
+		fmt.Println("Error accepting connection: ", err.Error())
+		return nil, err
+	}
+	return conn, nil
+}
+
+func (s *Server) ReadLoop (conn net.Conn) {
+	defer conn.Close()
+	for {
+		buf := make([]byte, 1024)
+		n, err := conn.Read(buf)
+		if err != nil {
+			fmt.Println("Error reading from connection: ", err.Error())
+			return
+		}
+		fmt.Println("Received ", string(buf[:n]))
+		conn.Write([]byte("+PONG\r\n"))
+	}
 }
