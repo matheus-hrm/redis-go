@@ -81,7 +81,6 @@ func ParseCommand(b []byte) (Request, error) {
 		default:
 			return Request{}, errors.New("invalid command")
 	}	
-	return Request{}, errors.New("invalid command")
 }
 
 func GetCommandType(b *[]byte) (dataType RespDataType, count int, err error) {
