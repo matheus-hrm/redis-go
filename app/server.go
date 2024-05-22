@@ -52,7 +52,11 @@ func (s *Server) HandleConnection(conn net.Conn) {
 		request, err := ParseCommand(buffer)
 		if err != nil {
 			fmt.Println("Error parsing request: ", err.Error())
-			break
+			_, err = conn.Write([]byte ("-ERR " + err.Error() + "\r\n"))
+			if err != nil {
+				fmt.Println("Error writing to connection: ", err.Error())
+			}
+			continue
 		}
 		//_, err = conn.Write([]byte("+PONG\r\n"))
 		

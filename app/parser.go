@@ -71,10 +71,15 @@ func ParseCommand(b []byte) (Request, error) {
 					return Request{}, errors.New("invalid command")
 				}
 			}
+			if cmd == "" {
+				return Request{}, errors.New("invalid command")
+			}
 			return Request{
 				Command: Command(cmd),
 				Args:    args,
 			}, nil
+		default:
+			return Request{}, errors.New("invalid command")
 	}	
 	return Request{}, errors.New("invalid command")
 }
