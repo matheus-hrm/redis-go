@@ -68,28 +68,21 @@ func (s *Server) HandleConnection(conn net.Conn) {
 }
 
 func WriteCommand(conn net.Conn, req Request) (error) {
+	var response string 
 	switch req.Command {
 	case ECHO:
 		if len(req.Args) > 0 {
-			_, err := io.WriteString(conn, fmt.Sprintf("+%s\r\n", req.Args[0]))
-			if err != nil {
-				fmt.Println("Error responding to ECHO", err.Error())
-				return err
-			}
+		 	response = fmt.Sprintf("+%s\r\n", req.Args[0])
 		} else {
-			_, err := io.WriteString(conn, "+\r\n")
-			if err != nil {
-				fmt.Println("Error responding to ECHO", err.Error())
-				return err
-			}
+			response = "+\r\n"
 		}
 	case PING: 
-		_, err := io.WriteString(conn, "+PONG\r\n")
-		if err != nil {
-			fmt.Println("Error responding to PING", err.Error())
-			return err
-		}
+		response = "+PONG\r\n"
 	}
+	_, err := conn.Write([]byte(response))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
-
