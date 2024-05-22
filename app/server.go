@@ -67,7 +67,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 func WriteCommand(conn net.Conn, req Request) (error) {
 	switch req.Command {
 	case ECHO:
-		_, err := io.WriteString(conn, fmt.Sprintf("+%s\r\n", req.Args[0]))
+		_, err := io.WriteString(conn, fmt.Sprintf("+%s\r\n", req.Args[1]))
 		if err != nil {
 			fmt.Println("Error responding to ECHO", err.Error())
 			os.Exit(1)
