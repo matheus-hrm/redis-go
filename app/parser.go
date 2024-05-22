@@ -56,7 +56,7 @@ func ParseCommand(b []byte) (Request, error) {
 			cmd := ""
 			args := make([]string, 0)
 			for i := 0; i < n; i++ {
-				dataType, subCount, err := GetCommandType(&b)
+				dataType, _, err := GetCommandType(&b)
 				if err != nil {
 					return Request{}, err
 				}
